@@ -2,8 +2,9 @@ const bcrypt = require('bcryptjs');
 
 const Event = require('../../models/event');
 const User = require('../../models/user');
+const Booking = require('../../models/booking');
 
-const user = async userId => {
+const getUser = async userId => {
   try {
     const user = await User.findById(userId)
 
@@ -30,13 +31,27 @@ const events = async eventIds => {
         ...event._doc,
         id: event.id,
         date: new Date(event._doc.date).toISOString(),
-        creator: user(event._doc.creator) // why not event._doc.creator
+        creator: getUser(event._doc.creator)
       }
     });
   } catch (err) {
     throw err;
   }
 };
+
+const getEvent = async eventId => {
+  try {
+    const event = await Event.findById(eventId);
+    return {
+      ...event._doc,
+      id: event.id,
+      date: new Date(event._doc.date).toISOString(),
+      creator: getUser(event._doc.creator)
+    }
+  } catch (error) {
+    throw error;
+  }
+}
 
 module.exports = {
   events: async () => {
@@ -47,11 +62,28 @@ module.exports = {
           ...event._doc,
           id: event.id,
           date: new Date(event._doc.date).toISOString(),
-          creator: user(event._doc.creator)
+          creator: getUser(event._doc.creator)
         };
       });
     } catch (err) {
       throw err;
+    }
+  },
+  bookings: async () => {
+    try {
+      const bookings = await Booking.find();
+      return bookings.map(booking => {
+        return {
+          ...booking._doc,
+          id: booking.id,
+          user: getUser(booking._doc.user),
+          event: getEvent(booking._doc.event),
+          createdAt: new Date(booking._doc.createdAt).toISOString(),
+          updatedAt: new Date(booking._doc.updatedAt).toISOString(),
+        }
+      });
+    } catch (error) {
+      throw error;
     }
   },
   createEvent: async args => {
@@ -77,7 +109,7 @@ module.exports = {
         ...savedEvent._doc,
         id: savedEvent._doc._id.toString(), // = event.id
         date: new Date(savedEvent._doc.date).toISOString(),
-        creator: user(savedEvent._doc.creator)
+        creator: getUser(savedEvent._doc.creator)
       };
     } catch (error) {
       throw error;
@@ -104,6 +136,43 @@ module.exports = {
       };
     } catch (err) {
       throw err;
+    }
+  },
+  bookEvent: async args => {
+    try {
+      const event = await Event.findById(args.eventId);
+      if (!event) {
+        throw new Error('Event does not exist.');
+      }
+      const bookingData = new Booking({
+        user: '5c3a19ba80e4ec2e30f2e669',
+        event: event
+      });
+      const booking = await bookingData.save();
+      return {
+        ...booking._doc,
+        id: booking.id,
+        user: getUser(booking._doc.user),
+        event: getEvent(booking._doc.event),
+        createdAt: new Date(booking._doc.createdAt).toISOString(),
+        updatedAt: new Date(booking._doc.updatedAt).toISOString(),
+      };
+
+    } catch (error) {
+      throw error;
+    }
+  },
+  cancelBooking: async args => {
+    try {
+      const booking = await Booking.findByIdAndDelete(args.bookingId).populate('event');
+      const event = {
+        ...booking.event._doc,
+        id: booking.event.id,
+        creator: getUser(booking.event._doc.creator)
+      };
+      return event;
+    } catch (error) {
+      throw error;
     }
   }
 };
