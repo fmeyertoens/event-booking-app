@@ -12,14 +12,14 @@ const getUser = async userId => {
       ...user._doc,
       id: user.id,
       password: null,
-      createdEvents: events(user._doc.createdEvents)
+      createdEvents: getEvents.bind(this, user._doc.createdEvents) // bind creates a copy of the function that is only executed when needed; executing the functions directly causes an infinite loop
     };
   } catch (error) {
     throw error;
   }
 };
 
-const events = async eventIds => {
+const getEvents = async eventIds => {
   try {
     const events = await Event.find({
       _id: {
@@ -31,7 +31,7 @@ const events = async eventIds => {
         ...event._doc,
         id: event.id,
         date: new Date(event._doc.date).toISOString(),
-        creator: getUser(event._doc.creator)
+        creator: getUser.bind(this, event._doc.creator)
       }
     });
   } catch (err) {
@@ -46,7 +46,7 @@ const getEvent = async eventId => {
       ...event._doc,
       id: event.id,
       date: new Date(event._doc.date).toISOString(),
-      creator: getUser(event._doc.creator)
+      creator: getUser.bind(this, event._doc.creator)
     }
   } catch (error) {
     throw error;
@@ -62,7 +62,7 @@ module.exports = {
           ...event._doc,
           id: event.id,
           date: new Date(event._doc.date).toISOString(),
-          creator: getUser(event._doc.creator)
+          creator: getUser.bind(this, event._doc.creator)
         };
       });
     } catch (err) {
@@ -76,8 +76,8 @@ module.exports = {
         return {
           ...booking._doc,
           id: booking.id,
-          user: getUser(booking._doc.user),
-          event: getEvent(booking._doc.event),
+          user: getUser.bind(this, booking._doc.user),
+          event: getEvent.bind(this, booking._doc.event),
           createdAt: new Date(booking._doc.createdAt).toISOString(),
           updatedAt: new Date(booking._doc.updatedAt).toISOString(),
         }
@@ -109,7 +109,7 @@ module.exports = {
         ...savedEvent._doc,
         id: savedEvent._doc._id.toString(), // = event.id
         date: new Date(savedEvent._doc.date).toISOString(),
-        creator: getUser(savedEvent._doc.creator)
+        creator: getUser.bind(this, savedEvent._doc.creator)
       };
     } catch (error) {
       throw error;
@@ -152,8 +152,8 @@ module.exports = {
       return {
         ...booking._doc,
         id: booking.id,
-        user: getUser(booking._doc.user),
-        event: getEvent(booking._doc.event),
+        user: getUser.bind(this, booking._doc.user),
+        event: getEvent.bind(this, booking._doc.event),
         createdAt: new Date(booking._doc.createdAt).toISOString(),
         updatedAt: new Date(booking._doc.updatedAt).toISOString(),
       };
@@ -168,7 +168,7 @@ module.exports = {
       const event = {
         ...booking.event._doc,
         id: booking.event.id,
-        creator: getUser(booking.event._doc.creator)
+        creator: getUser.bind(this, booking.event._doc.creator)
       };
       return event;
     } catch (error) {
