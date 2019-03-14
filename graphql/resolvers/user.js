@@ -41,7 +41,7 @@ module.exports = {
       // better to use same error message for both
       throw new Error('Password is incorrect!');
     }
-    const privateKey = 'mySecretPrivateKey';
+    const privateKey = process.env.SECRET_KEY;
     const tokenExpiration = 1; // in hours
     const token = jwt.sign({
       userId: user.id,

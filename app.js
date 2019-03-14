@@ -6,18 +6,19 @@ const mongoose = require('mongoose');
 
 const schemaDefinition = require('./graphql/schema/index');
 const resolvers = require('./graphql/resolvers/index');
+const isAuth = require('./middleware/is-auth');
 
 const app = express();
 
 app.use(bodyParser.json());
 
+app.use(isAuth);
 
 app.use((req, res, next) => {
     const start = Date.now();
     res.on('finish', () => {
       const duration = Date.now() - start;
       console.log(`${duration} ms`);
-
     });
     next();
   })
