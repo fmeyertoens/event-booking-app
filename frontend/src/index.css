@@ -2,4 +2,70 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Segoe UI Semibold', Tahoma, Geneva, Verdana, sans-serif;
+  --primary-color: #AD1457;
+  --primary-light: #D81B60;
+  --primary-dark: #880E4F;
+  --primary-pale: #AD145733;
+  --secondary-color: #FFA726; 
+  --primary-text: white;
+}
+
+.form-control>input {
+  color: inherit;
+  font: inherit;
+  border-radius: 4px;
+  padding: .5rem;
+  border: 2px solid rgb(148, 148, 148);
+}
+
+.form-control>input:focus {
+  border: 2px solid var(--primary-color);
+  outline: none;
+}
+
+.form-control>label {
+  margin-bottom: .5rem;
+}
+
+.form-control {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.btn {
+  background: var(--primary-color);
+  font: inherit;
+  border: 2px solid var(--primary-color);
+  border-radius: 4px;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0,.26);
+  padding: .5rem 1rem;
+  color: var(--primary-text);
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.btn:hover,
+.btn:active {
+  border-color: var(--primary-dark);
+}
+
+.btn:focus {
+  outline: none;
+}
+
+.btn.light {
+  background: var(--primary-text);
+  color: var(--primary-color);
+  border-color: var(--primary-light);
+}
+
+.btn.light:hover {
+  border-color: var(--primary-dark);
+  background-color: var(--primary-pale);
 }

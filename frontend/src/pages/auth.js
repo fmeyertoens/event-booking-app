@@ -93,8 +93,8 @@ class AuthPage extends Component {
         <input type="password" id="password" ref={this.passwordEl}/>
       </div>
       <div className="form-actions">
-        <button type="button" className="secondary" onClick={this.switchMode}>Switch to {this.state.showLogin ? 'Signup': 'Login'}</button>
-        <button type="Submit">{this.state.showLogin ? 'Login': 'Signup'}</button>
+        <button type="button" className="btn light" onClick={this.switchMode}>Switch to {this.state.showLogin ? 'Signup': 'Login'}</button>
+        <button type="Submit" className="btn">{this.state.showLogin ? 'Login': 'Signup'}</button>
       </div>
     </form>);
   }
