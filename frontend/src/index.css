@@ -11,12 +11,26 @@ body {
 }
 
 .form-control>input,
-.form-control>textarea {
+.form-control>textarea,
+.form-control>div>input.datetime {
   color: inherit;
   font: inherit;
   border-radius: 4px;
   padding: .5rem;
   border: 2px solid rgb(148, 148, 148);
+}
+
+.form-control>div>input.datetime {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-control>div>div.rdtPicker {
+  border: 2px solid rgb(148, 148, 148);
+  border-radius: 4px;
+}
+.form-control>div.rdtOpen>div.rdtPicker {
+  border: 2px solid var(--primary-color);
 }
 
 .form-control>textarea {
@@ -28,7 +42,8 @@ body {
 }
 
 .form-control>input:focus,
-.form-control>textarea:focus {
+.form-control>textarea:focus,
+.form-control>div>input.datetime:focus {
   border: 2px solid var(--primary-color);
   outline: none;
 }

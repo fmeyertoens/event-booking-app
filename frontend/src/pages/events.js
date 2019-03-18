@@ -1,19 +1,25 @@
 import React, { Component } from 'react';
 import Modal from './../components/modal/modal';
 import Backdrop from './../components/backdrop/backdrop';
+import Datetime from 'react-datetime';
 import './events.css';
+import 'react-datetime/css/react-datetime.css';
 
 class EventsPage extends Component {
   state = {
-    modalIsOpen: false
+    modalIsOpen: false,
+    eventDate: null
   };
 
   constructor(props) {
     super(props);
     this.titleElRef = React.createRef();
     this.priceElRef = React.createRef();
-    this.dateElRef = React.createRef();
     this.descriptionElRef = React.createRef();
+  }
+
+  updateEventDate = (newDate) => {
+    this.setState({eventDate: newDate.toDate()});
   }
 
   openModal = () => {
@@ -27,13 +33,13 @@ class EventsPage extends Component {
   confirmModal = () => {
     this.setState({modalIsOpen: false});
     const title = this.titleElRef.current.value;
-    const price = this.priceElRef.current.value;
-    const date = this.dateElRef.current.value;
+    const price = +this.priceElRef.current.value;
+    const date = this.state.eventDate.toISOString();
     const description = this.descriptionElRef.current.value;
 
     if (title.trim().length === 0
-      ||price.trim().length === 0
-      || date.trim().length === 0
+      || this.priceElRef.current.value.trim().length === 0
+      || !date
       || description.trim().length === 0) {
       return;
     }
@@ -58,11 +64,11 @@ class EventsPage extends Component {
             </div>
             <div className="form-control">
               <label htmlFor="price">Price</label>
-              <input type="number" id="price" ref={this.priceElRef}></input>
+              <input type="number" id="price" step="0.01" ref={this.priceElRef}></input>
             </div>
             <div className="form-control">
               <label htmlFor="date">Date</label>
-              <input type="datetime-local" id="date" ref={this.dateElRef}></input>
+              <Datetime inputProps={{className: 'datetime'}} onChange={this.updateEventDate}/>
             </div>
             <div className="form-control">
               <label htmlFor="description">Description</label>
