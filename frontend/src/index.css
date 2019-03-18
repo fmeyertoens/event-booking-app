@@ -10,7 +10,8 @@ body {
   --primary-text: white;
 }
 
-.form-control>input {
+.form-control>input,
+.form-control>textarea {
   color: inherit;
   font: inherit;
   border-radius: 4px;
@@ -18,7 +19,16 @@ body {
   border: 2px solid rgb(148, 148, 148);
 }
 
-.form-control>input:focus {
+.form-control>textarea {
+  resize: vertical;
+}
+
+.form-control>input[type=number] {
+  width: auto;
+}
+
+.form-control>input:focus,
+.form-control>textarea:focus {
   border: 2px solid var(--primary-color);
   outline: none;
 }
