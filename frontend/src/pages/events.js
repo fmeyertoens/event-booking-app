@@ -4,6 +4,8 @@ import Backdrop from './../components/backdrop/backdrop';
 import Datetime from 'react-datetime';
 import AuthContext from '../context/auth-context';
 import moment from 'moment';
+import EventList from './../components/Events/EventList/eventList';
+import Spinner from './../components/Spinner/spinner';
 import './events.css';
 import 'react-datetime/css/react-datetime.css';
 
@@ -11,7 +13,8 @@ class EventsPage extends Component {
   state = {
     modalIsOpen: false,
     eventDate: null,
-    events: []
+    events: [],
+    isLoading: false
   };
 
   static contextType = AuthContext;
@@ -48,7 +51,7 @@ class EventsPage extends Component {
     const description = this.descriptionElRef.current.value;
 
     if (title.trim().length === 0
-      || price <= 0
+      || price < 0
       || !date
       || description.trim().length === 0) {
       return;
@@ -69,10 +72,6 @@ class EventsPage extends Component {
             description
             price
             date
-            creator {
-              id
-              email
-            }
           }
         }
       `
@@ -94,7 +93,16 @@ class EventsPage extends Component {
       }
       const resData = await response.json();
       
-      this.fetchEvents();
+      this.setState(prevState => {
+        return { events: [
+          ...prevState.events,
+          {
+            ...resData.data.createEvent,
+            creator: {
+              id: this.context.userId
+            }
+          }]};
+      });
     } catch (error) {
       console.log(error);
     }
@@ -105,6 +113,7 @@ class EventsPage extends Component {
   }
 
   async fetchEvents() {
+    this.setState({isLoading: true});
     const requestBody = {
       query: `
         query {
@@ -141,13 +150,12 @@ class EventsPage extends Component {
       this.setState({events: events});
     } catch (error) {
       console.log(error);
+    } finally {
+      this.setState({isLoading: false});
     }
   }
 
   render() {
-    const eventList = this.state.events.map(event => {
-      return <li key= {event.id} className="event-list-item">{event.title}</li>
-    });
 
     return (
       <React.Fragment>
@@ -182,9 +190,10 @@ class EventsPage extends Component {
           <button className="btn" onClick={this.openModal}>Create one</button>
         </div>
         )}
-        <ul className="event-list">
-          {eventList}
-        </ul>
+        {this.state.isLoading ?
+          <Spinner /> :
+          <EventList events={this.state.events} />
+        }
       </React.Fragment>
       );
   }
