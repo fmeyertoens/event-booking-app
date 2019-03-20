@@ -19,7 +19,7 @@ class eventItem extends Component {
       <div>
         {this.context.userId === this.props.event.creator.id ?
           <p>This is your event</p> :
-          <button className="btn light text">Show Details</button>}
+          <button className="btn light text" onClick={this.props.onDetail.bind(this, this.props.event.id)}>Show Details</button>}
       </div>
     </li>
     );

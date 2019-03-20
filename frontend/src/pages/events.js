@@ -11,10 +11,11 @@ import 'react-datetime/css/react-datetime.css';
 
 class EventsPage extends Component {
   state = {
-    modalIsOpen: false,
+    createModalIsOpen: false,
     eventDate: null,
     events: [],
-    isLoading: false
+    isLoading: false,
+    selectedEvent: null
   };
 
   static contextType = AuthContext;
@@ -36,15 +37,15 @@ class EventsPage extends Component {
   }
 
   openModal = () => {
-    this.setState({modalIsOpen: true});
+    this.setState({createModalIsOpen: true});
   }
 
   closeModal = () => {
-    this.setState({modalIsOpen: false});
+    this.setState({createModalIsOpen: false, selectedEvent: null});
   }
 
   confirmModal = async () => {
-    this.setState({modalIsOpen: false});
+    this.setState({createModalIsOpen: false});
     const title = this.titleElRef.current.value;
     const price = +this.priceElRef.current.value;
     const date = this.state.eventDate ? this.state.eventDate.toISOString() : this.state.eventDate;
@@ -108,6 +109,10 @@ class EventsPage extends Component {
     }
   }
 
+  bookEvent = () => {
+
+  }
+
   componentDidMount() {
     this.fetchEvents();
   }
@@ -155,16 +160,25 @@ class EventsPage extends Component {
     }
   }
 
+  showDetailModal = eventId => {
+    this.setState(prevState => {
+      const selectedEvent = prevState.events.find(e => e.id === eventId);
+      
+      return {selectedEvent: selectedEvent};
+    });
+  }
+
   render() {
 
     return (
       <React.Fragment>
-        {this.state.modalIsOpen && <Backdrop />}
-        {this.state.modalIsOpen && <Modal title="Add Event"
+        {(this.state.createModalIsOpen || this.state.selectedEvent) && <Backdrop />}
+        {this.state.createModalIsOpen && <Modal title="Add Event"
         canCancel
         canConfirm
         onCancel={this.closeModal}
-        onConfirm={this.confirmModal}>
+        onConfirm={this.confirmModal}
+        confirmText="Confirm">
           <form>
             <div className="form-control">
               <label htmlFor="title">Title</label>
@@ -184,6 +198,16 @@ class EventsPage extends Component {
             </div>
           </form>
         </Modal>}
+        {this.state.selectedEvent && <Modal
+          title={this.state.selectedEvent.title}
+          canCancel
+          canConfirm
+          onCancel={this.closeModal}
+          onConfirm={this.bookEvent}
+          confirmText="Book">
+            <h2>{this.state.selectedEvent.price} € - {new Date(this.state.selectedEvent.date).toLocaleDateString('de-DE')} - {new Date(this.state.selectedEvent.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})}</h2>
+            <p>{this.state.selectedEvent.description}</p>
+        </Modal>}
         {this.context.token && (
         <div className="events-panel">
           <p>Any events coming up?</p>
@@ -192,7 +216,7 @@ class EventsPage extends Component {
         )}
         {this.state.isLoading ?
           <Spinner /> :
-          <EventList events={this.state.events} />
+          <EventList events={this.state.events} onViewDetail={this.showDetailModal}/>
         }
       </React.Fragment>
       );
