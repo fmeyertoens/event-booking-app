@@ -109,8 +109,45 @@ class EventsPage extends Component {
     }
   }
 
-  bookEvent = () => {
+  bookEvent = async () => {
+    if (!this.context.token) {
+      this.setState({selectedEvent: null});
+      return;
+    }
+    const requestBody = {
+      query: `
+        mutation {
+          bookEvent(eventId: "${this.state.selectedEvent.id}") {
+            id
+            createdAt
+            updatedAt
+          }
+        }
+      `
+    };
 
+    const token = this.context.token;
+
+    try {
+      const response = await fetch('http://localhost:8000/api', {
+        method: 'POST',
+        body: JSON.stringify(requestBody),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        }
+      });
+      if (!response.ok) {
+        throw new Error('Failed');
+      }
+      const resData = await response.json();
+      
+      console.log(resData);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      this.setState({selectedEvent: null});
+    }
   }
 
   componentDidMount() {
@@ -204,7 +241,7 @@ class EventsPage extends Component {
           canConfirm
           onCancel={this.closeModal}
           onConfirm={this.bookEvent}
-          confirmText="Book">
+          confirmText={this.context.token ? 'Book': 'Confirm'}>
             <h2>{this.state.selectedEvent.price} € - {new Date(this.state.selectedEvent.date).toLocaleDateString('de-DE')} - {new Date(this.state.selectedEvent.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})}</h2>
             <p>{this.state.selectedEvent.description}</p>
         </Modal>}
@@ -216,7 +253,9 @@ class EventsPage extends Component {
         )}
         {this.state.isLoading ?
           <Spinner /> :
-          <EventList events={this.state.events} onViewDetail={this.showDetailModal}/>
+          (this.state.events.length > 0 ?
+          <EventList events={this.state.events} onViewDetail={this.showDetailModal}/>:
+          <p className="events-panel">There seem to be no events so far.</p>)
         }
       </React.Fragment>
       );
