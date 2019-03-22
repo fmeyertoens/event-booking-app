@@ -1,9 +1,17 @@
 const Event = require('../../models/event');
 const User = require('../../models/user');
-
+const DataLoader = require('dataloader');
 const {
   dateToString
 } = require('../../helpers/date');
+
+const eventLoader = new DataLoader(eventIds => {
+  return getEvents(eventIds);
+});
+
+const userLoader = new DataLoader(userIds => {
+  return User.find({_id: {$in: userIds}});
+});
 
 const createReturnEventObject = event => {
   return {
@@ -27,13 +35,14 @@ const createReturnBookingObject = booking => {
 
 const getUser = async userId => {
   try {
-    const user = await User.findById(userId)
+    // convert userId to string so the loader can find duplicates
+    const user = await userLoader.load(userId.toString());
 
     return {
       ...user._doc,
       id: user.id,
       password: null,
-      createdEvents: getEvents.bind(this, user._doc.createdEvents) // bind creates a copy of the function that is only executed when needed; executing the functions directly causes an infinite loop
+      createdEvents: () => eventLoader.loadMany(user._doc.createdEvents.map(e => e.toString()))
     };
   } catch (error) {
     throw error;
@@ -57,8 +66,8 @@ const getEvents = async eventIds => {
 
 const getEvent = async eventId => {
   try {
-    const event = await Event.findById(eventId);
-    return createReturnEventObject(event);
+    const event = await eventLoader.load(eventId.toString());
+    return event;
   } catch (error) {
     throw error;
   }
