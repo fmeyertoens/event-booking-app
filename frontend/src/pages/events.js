@@ -151,7 +151,7 @@ class EventsPage extends Component {
       if (!response.ok) {
         throw new Error('Failed');
       }
-      const resData = await response.json();
+      // const resData = await response.json();
       
       // console.log(resData);
     } catch (error) {

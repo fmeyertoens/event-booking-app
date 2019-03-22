@@ -2,12 +2,15 @@ import React, { Component } from 'react';
 import AuthContext from './../context/auth-context';
 import Spinner from './../components/Spinner/spinner';
 import BookingList from './../components/bookings/bookingList/bookingList';
+import BookingChart from './../components/bookings/bookingChart/bookingChart';
+import BookingDisplaySwitch from './../components/bookings/bookingDisplaySwitch/bookingDisplaySwitch';
 import './booking.css';
 
 class BookingsPage extends Component {
   state = {
     isLoading: false,
-    bookings: []
+    bookings: [],
+    currentView: 'list'
   }
 
   static contextType = AuthContext;
@@ -27,6 +30,7 @@ class BookingsPage extends Component {
             event {
               id
               title
+              price
               date
             }
           }
@@ -101,14 +105,35 @@ class BookingsPage extends Component {
     }
   }
 
+  changeView = viewName => {
+    if (viewName === 'list') {
+      this.setState({currentView: 'list'});
+    } else {
+      this.setState({currentView: 'chart'});
+    }
+  }
+
   render() {
+    let content = <Spinner />;
+    if (!this.state.isLoading) {
+      content = (
+        <React.Fragment>
+          <BookingDisplaySwitch activeView={this.state.currentView} onSwitch={this.changeView}/>
+          <div>
+            {this.state.bookings.length > 0 ?
+              (this.state.currentView === 'list' ?
+                <BookingList bookings={this.state.bookings} onCancelBooking={this.cancelBooking}/>:
+                <BookingChart bookings={this.state.bookings}/>
+              ):
+              <p className="message-panel">There seem to be no bookings so far.</p>
+            }
+          </div>
+        </React.Fragment>
+      );
+    }
     return (
       <React.Fragment>
-        {this.state.isLoading ? <Spinner /> :
-        (this.state.bookings.length > 0 ?
-          <BookingList bookings={this.state.bookings} onCancelBooking={this.cancelBooking}/>:
-          <p className="message-panel">There seem to be no bookings so far.</p>
-        )}
+        {content}
       </React.Fragment>
     )
   }
