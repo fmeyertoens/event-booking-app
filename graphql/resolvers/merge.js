@@ -56,6 +56,10 @@ const getEvents = async eventIds => {
         $in: eventIds
       }
     });
+    // the events must be returned to the dataloader in the order of the eventIds array
+    events.sort((a, b) => {
+      return eventIds.indexOf(a._id.toString()) - eventIds.indexOf(b._id.toString());
+    });
     return events.map(event => {
       return createReturnEventObject(event);
     });
