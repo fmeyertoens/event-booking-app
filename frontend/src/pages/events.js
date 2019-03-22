@@ -62,12 +62,12 @@ class EventsPage extends Component {
 
     const requestBody = {
       query: `
-        mutation {
+        mutation CreateEvent($title: String!, $desc: String!, $price: Float!, $date: String!) {
           createEvent(eventInput: {
-            title: "${title}",
-            description: "${description}",
-            price: ${price},
-            date: "${date}"
+            title: $title,
+            description: $desc,
+            price: $price,
+            date: $date
           }) {
             id
             title
@@ -77,7 +77,13 @@ class EventsPage extends Component {
             date
           }
         }
-      `
+      `,
+      variables: {
+        title: title,
+        desc: description,
+        price: price,
+        date: date
+      }
     };
 
     const token = this.context.token;
@@ -118,14 +124,17 @@ class EventsPage extends Component {
     }
     const requestBody = {
       query: `
-        mutation {
-          bookEvent(eventId: "${this.state.selectedEvent.id}") {
+        mutation BookEvent($id: ID!) {
+          bookEvent(eventId: $id) {
             id
             createdAt
             updatedAt
           }
         }
-      `
+      `,
+      variables: {
+        id: this.state.selectedEvent.id
+      }
     };
 
     const token = this.context.token;
@@ -144,7 +153,7 @@ class EventsPage extends Component {
       }
       const resData = await response.json();
       
-      console.log(resData);
+      // console.log(resData);
     } catch (error) {
       console.log(error);
     } finally {
