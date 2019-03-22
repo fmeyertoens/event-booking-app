@@ -18,6 +18,8 @@ class EventsPage extends Component {
     selectedEvent: null
   };
 
+  isActive = true;
+
   static contextType = AuthContext;
 
   constructor(props) {
@@ -154,6 +156,10 @@ class EventsPage extends Component {
     this.fetchEvents();
   }
 
+  componentWillUnmount() {
+    this.isActive = false;
+  }
+
   async fetchEvents() {
     this.setState({isLoading: true});
     const requestBody = {
@@ -189,11 +195,15 @@ class EventsPage extends Component {
       const resData = await response.json();
       
       const events = resData.data.events;
-      this.setState({events: events});
+      if (this.isActive) {
+        this.setState({events: events});
+      }
     } catch (error) {
       console.log(error);
     } finally {
-      this.setState({isLoading: false});
+      if (this.isActive) {
+        this.setState({isLoading: false});
+      }
     }
   }
 
