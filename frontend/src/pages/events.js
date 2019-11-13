@@ -191,6 +191,7 @@ class EventsPage extends Component {
     };
 
     try {
+      const startTime = Date.now();
       const response = await fetch('http://localhost:8000/api', {
         method: 'POST',
         body: JSON.stringify(requestBody),
@@ -201,7 +202,15 @@ class EventsPage extends Component {
       if (!response.ok) {
         throw new Error('Failed');
       }
+      const timeToReceive = Date.now() - startTime;
       const resData = await response.json();
+      const timeToParse = Date.now() - startTime;
+      const timings = {
+        timeToReceive: timeToReceive + 'ms',
+        timeToParse: timeToParse + 'ms'
+      };
+      console.table(timings);
+      
       
       const events = resData.data.events;
       if (this.isActive) {
